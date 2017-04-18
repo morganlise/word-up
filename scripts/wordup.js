@@ -2,7 +2,7 @@
 
 // ----------------- MODEL -----------------
 
-var GAME_DURATION = 60;
+var GAME_DURATION = 5;
 
 // all the stuff we need to keep track of
 var model = {
@@ -115,7 +115,7 @@ function render() {
 
     // TODO 2
     // Update the curent time remaining on the scoreboard.
-
+    $("#time-remaining").text(model.secondsRemaining); 
 
     // if the game has not started yet, just hide the #game container and exit
     if (model.gameHasStarted == false) {
@@ -128,6 +128,9 @@ function render() {
     // clear stuff
     $("#allowed-letters").empty();
     $("#word-submissions").empty();
+    $("#textbox").attr("disabled", false);
+    $("#textbox").removeClass("bad-attempt");
+    $("#red-letters").empty();
     // TODO 10
     // Add a few things to the above code block (underneath "// clear stuff").
 
@@ -141,13 +144,14 @@ function render() {
 
     // TODO 11
     // Render the word submissions
-
+    var wordChips = model.wordSubmissions.map(wordSubmissionChip)
+    $("#word-submissions").append(wordChips);    
 
     // Set the value of the textbox
     $("#textbox").val(model.currentAttempt);
     // TODO 3
     // Give focus to the textbox.
-
+    $("#textbox").focus();
 
     // if the current word attempt contains disallowed letters,
     var disallowedLetters = disallowedLettersInWord(model.currentAttempt);
@@ -160,7 +164,7 @@ function render() {
 
         // TODO 8
         // append the red letter chips to the form
-
+        $("#red-letters").append(redLetterChips);
     }
 
     // if the game is over
@@ -168,7 +172,8 @@ function render() {
     if (gameOver) {
         // TODO 9
         // disable the text box and clear its contents
-
+        $("#textbox").val("");
+        $("#textbox").attr("disabled", true);
     }
 }
 
@@ -242,7 +247,11 @@ $(document).ready(function() {
     // Add another event handler with a callback function.
     // When the textbox content changes,
     // update the .currentAttempt property of the model and re-render
-
+    $("#textbox").on("input", function() {
+        var userInput = $("#textbox").val();
+        model.currentAttempt = userInput;
+        render();
+    });
 
     // when the form is submitted
     $("#word-attempt-form").submit(function(evt) {
@@ -280,7 +289,11 @@ function isDisallowedLetter(letter) {
     // TODO 7
     // This should return true if the letter is not an element of
     // the .allowedLetters list in the model
-    return false;
+    if (model.allowedLetters.indexOf(letter) != -1) {
+        return false;
+    } else {
+        return true;
+    }
 }
 
 /**
